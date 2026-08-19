@@ -7,9 +7,13 @@ services:
       - redis
     restart: unless-stopped
     ports:
-      - 5212:5212
-      - 6888:6888
-      - 6888:6888/udp
+      # Set LAN_IP and TAILSCALE_IP in the untracked .env file.
+      - "${LAN_IP:?LAN_IP must be set in .env}:5212:5212"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:5212:5212"
+      - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:6888:6888"
+      - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888/udp"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:6888:6888/udp"
     environment:
       - CR_CONF_Database.Type=postgres
       - CR_CONF_Database.Host=postgresql
