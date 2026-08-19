@@ -1,7 +1,7 @@
 services:
   cloudreve:
     image: cloudreve/cloudreve:latest
-    container_name: cloudreve-backend
+    container_name: cloudreve-backend-cloudreve
     depends_on:
       - postgresql
       - redis
@@ -30,7 +30,7 @@ services:
     # NOTE: For major version jumps:
     # backup & consult https://www.postgresql.org/docs/current/pgupgrade.html 
     image: postgres:17
-    container_name: postgresql
+    container_name: cloudreve-backend-postgresql
     restart: unless-stopped
     environment:
       - POSTGRES_USER=cloudreve
@@ -41,7 +41,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: cloudreve-backend-redis
     restart: unless-stopped
     volumes:
       - redis_data:/data
