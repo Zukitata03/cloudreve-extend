@@ -8,9 +8,8 @@ services:
     restart: unless-stopped
     ports:
       # Set LAN_IP and TAILSCALE_IP in the untracked .env file.
-      # Map host port 80 -> container 5212 so http://cloud.acl0ud.xyz works without :5212
-      - "${LAN_IP:?LAN_IP must be set in .env}:80:5212"
-      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:80:5212"
+      - "${LAN_IP:?LAN_IP must be set in .env}:5212:5212"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:5212:5212"
       - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888"
       - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:6888:6888"
       - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888/udp"
@@ -23,8 +22,32 @@ services:
       - CR_CONF_Database.Name=cloudreve
       - CR_CONF_Database.Port=5432
       - CR_CONF_Redis.Server=redis:6379
+      # Trust Caddy's forwarded headers so Cloudreve logs real client IPs.
+      - CR_CONF_System.ProxyHeader=X-Forwarded-For
     volumes:
       - /data/cloudreve:/cloudreve/data
+
+  caddy:
+    build: ./caddy
+    container_name: cloudreve-backend-caddy
+    depends_on:
+      - cloudreve
+    restart: unless-stopped
+    ports:
+      # Expose 80 (HTTP -> redirects to HTTPS) and 443 (HTTPS) on the LAN
+      # and Tailscale IPs only. Port 80 is required for HTTP->HTTPS redirects;
+      # the certificate itself is obtained via DNS-01 over the Alibaba API.
+      - "${LAN_IP:?LAN_IP must be set in .env}:80:80"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:80:80"
+      - "${LAN_IP:?LAN_IP must be set in .env}:443:443"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:443:443"
+    environment:
+      - ALIDNS_ACCESS_KEY_ID=${ALIDNS_ACCESS_KEY_ID:?ALIDNS_ACCESS_KEY_ID must be set in .env}
+      - ALIDNS_ACCESS_KEY_SECRET=${ALIDNS_ACCESS_KEY_SECRET:?ALIDNS_ACCESS_KEY_SECRET must be set in .env}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
   postgresql:
     # Best practice: Pin to major version. 
@@ -50,3 +73,5 @@ services:
 volumes:
   database_postgres:
   redis_data:
+  caddy_data:
+  caddy_config:
