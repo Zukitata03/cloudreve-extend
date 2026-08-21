@@ -1,14 +1,9 @@
 services:
   cloudreve:
-    # Built from this repo + the frontend fork (fetched from GitHub during
-    # the image build). Rebuild after pulling either repo:
-    #   git pull && docker compose up -d --build cloudreve
-    build:
-      context: .
-      args:
-        FE_REPO: https://github.com/Zukitata03/cloudreve-extend-FE.git
-        FE_BRANCH: develop
-    image: cloudreve-extend:local
+    # Prebuilt by GitHub Actions on every push to master/develop of this repo
+    # (frontend is fetched from the cloudreve-extend-FE fork during the CI
+    # build). Deploy = git pull && docker compose pull && docker compose up -d
+    image: ghcr.io/zukitata03/cloudreve-extend:latest
     container_name: cloudreve-backend-cloudreve
     depends_on:
       - postgresql
@@ -60,9 +55,9 @@ services:
       - caddy_config:/config
 
   postgresql:
-    # Best practice: Pin to major version. 
+    # Best practice: Pin to major version.
     # NOTE: For major version jumps:
-    # backup & consult https://www.postgresql.org/docs/current/pgupgrade.html 
+    # backup & consult https://www.postgresql.org/docs/current/pgupgrade.html
     image: postgres:17
     container_name: cloudreve-backend-postgresql
     restart: unless-stopped
