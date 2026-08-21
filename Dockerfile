@@ -39,7 +39,7 @@ COPY --from=frontend /fe/build ./fe-dist
 # startup version check passes.
 RUN mkdir -p application/statics/assets/build \
     && cp -r fe-dist/. application/statics/assets/build/ \
-    && VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
+    && VERSION="$(git describe --tags --match '[0-9]*' 2>/dev/null || echo 0.0.0)" \
     && COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)" \
     && printf '{"name":"cloudreve-frontend","version":"%s"}' "$VERSION" \
         > application/statics/assets/build/version.json \

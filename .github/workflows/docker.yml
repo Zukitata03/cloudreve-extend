@@ -26,6 +26,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history + tags: `git describe` needs them to produce a real
+          # semver for BackendVersion. A bare commit SHA (shallow default)
+          # panics the DB migrator with "Invalid Semantic Version".
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
