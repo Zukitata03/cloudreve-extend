@@ -8,6 +8,10 @@
 }
 
 cloud.acl0ud.xyz {
+	# Company-only: 403 for anyone not coming from the office public IP,
+	# the LAN, or the Tailscale tailnet (CGNAT range).
+	@outsiders not remote_ip {$OFFICE_PUBLIC_IP} 192.168.0.0/16 100.64.0.0/10
+	respond @outsiders 403
 	# Cloudreve is reached over the internal Docker network, so this traffic
 	# never leaves the host and can stay plaintext on port 5212.
 	reverse_proxy cloudreve:5212

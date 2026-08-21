@@ -44,6 +44,7 @@ services:
     environment:
       - ALIDNS_ACCESS_KEY_ID=${ALIDNS_ACCESS_KEY_ID:?ALIDNS_ACCESS_KEY_ID must be set in .env}
       - ALIDNS_ACCESS_KEY_SECRET=${ALIDNS_ACCESS_KEY_SECRET:?ALIDNS_ACCESS_KEY_SECRET must be set in .env}
+      - OFFICE_PUBLIC_IP=${OFFICE_PUBLIC_IP:?OFFICE_PUBLIC_IP must be set in .env}
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
