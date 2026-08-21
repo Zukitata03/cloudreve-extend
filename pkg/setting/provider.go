@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -859,8 +860,21 @@ func (s *settingProvider) AuthnEnabled(ctx context.Context) bool {
 	return s.getBoolean(ctx, "authn_enabled", false)
 }
 
+// EnvAllowRegister re-enables public self-registration when set to "1"/"true"/"yes".
+// Registration is otherwise permanently disabled in code: this instance is
+// publicly exposed and accounts are created by admins only.
+const EnvAllowRegister = "CR_ALLOW_REGISTER"
+
 func (s *settingProvider) RegisterEnabled(ctx context.Context) bool {
-	return s.getBoolean(ctx, "register_enabled", false)
+	// Disabled by default regardless of the DB setting; this drives both the
+	// POST /user route guard and the `register_enabled` flag exposed to the
+	// frontend via the login section of the site config.
+	switch strings.ToLower(os.Getenv(EnvAllowRegister)) {
+	case "1", "true", "yes":
+		return true
+	default:
+		return false
+	}
 }
 
 func (s *settingProvider) ExposeUserEmail(ctx context.Context) bool {

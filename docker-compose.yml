@@ -1,6 +1,14 @@
 services:
   cloudreve:
-    image: cloudreve/cloudreve:latest
+    # Built from this repo + the frontend fork (fetched from GitHub during
+    # the image build). Rebuild after pulling either repo:
+    #   git pull && docker compose up -d --build cloudreve
+    build:
+      context: .
+      args:
+        FE_REPO: https://github.com/Zukitata03/cloudreve-extend-FE.git
+        FE_BRANCH: develop
+    image: cloudreve-extend:local
     container_name: cloudreve-backend-cloudreve
     depends_on:
       - postgresql
@@ -22,6 +30,9 @@ services:
       - CR_CONF_Redis.Server=redis:6379
       # Trust Caddy's forwarded headers so Cloudreve logs real client IPs.
       - CR_CONF_System.ProxyHeader=X-Forwarded-For
+      # Self-registration is disabled in code; set ALLOW_REGISTER=1 in .env
+      # to re-enable the register API without rebuilding the image.
+      - CR_ALLOW_REGISTER=${ALLOW_REGISTER:-0}
     volumes:
       - /data/cloudreve:/cloudreve/data
 
