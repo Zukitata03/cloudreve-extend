@@ -8,8 +8,6 @@ services:
     restart: unless-stopped
     ports:
       # Set LAN_IP and TAILSCALE_IP in the untracked .env file.
-      - "${LAN_IP:?LAN_IP must be set in .env}:5212:5212"
-      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:5212:5212"
       - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888"
       - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:6888:6888"
       - "${LAN_IP:?LAN_IP must be set in .env}:6888:6888/udp"
